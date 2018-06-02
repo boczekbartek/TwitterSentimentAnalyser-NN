@@ -28,7 +28,7 @@ model.add(Convolution1D(32, 3, padding='same'))
 model.add(Convolution1D(16, 3, padding='same'))
 model.add(Flatten())
 model.add(Dropout(0.2))
-# slack test
+# slack test2
 model.add(Dense(180,activation='sigmoid'))
 model.add(Dropout(0.2))
 model.add(Dense(1,activation='sigmoid'))
