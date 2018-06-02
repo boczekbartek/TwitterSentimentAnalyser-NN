@@ -9,7 +9,7 @@ from keras.preprocessing import sequence
 from keras.callbacks import TensorBoard
 
 # Using keras to load the dataset with the top_words
-top_words = 1000
+top_words = 10000
 (X_train, y_train), (X_test, y_test) = imdb.load_data(num_words=top_words)
 # %%
 # Pad the sequence to the same length
