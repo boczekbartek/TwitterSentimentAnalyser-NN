@@ -8,7 +8,7 @@ Create virtualenv:
 ``` virtualenv -ppython3 myenv ```
 
 Activate it:  
-``` source myenv/bin/actibate ```
+``` source myenv/bin/activate ```
 
 Install dependencies:  
 ``` pip install -r requirements.txt ```
