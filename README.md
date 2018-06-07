@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/boczekbartek/TwitterSentimentAnalyser-NN.svg?branch=master)](https://travis-ci.com/boczekbartek/TwitterSentimentAnalyser-NN)
+
 # TwitterSentimentAnalyser-NN
 Twitter sentiment analyser using implemented neural network, 
 Warsaw University of Technology project, course: PSZT
