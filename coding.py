@@ -28,30 +28,29 @@ class Coding:
         ----------
         word: str
             word to add to dict
-
         Returns
         -------
             index of added word, or index of this word if existed in dict previously
         """
+        self.add_occurrence(word)
         if word not in self.word_dict:
             new_code = self.max_code + 1
             self.word_dict[word] = new_code
             self.rev_dict[new_code] = word
             self.max_code = new_code
 
-        self.add_occurrence(word)
         return self.word_dict[word]
 
     def add_occurrence(self, word: str) -> int:
         """
-        Add occurance of word to occurances dict
+        Add occurrence of word to occurrences dict
         Parameters
         ----------
         word: str
             word
         Returns
         -------
-            Number of occurances for this word
+            Number of occurrences for this word
         """
         if word not in self.word_dict:
             self.occurrences[word] = 1
@@ -66,7 +65,6 @@ class Coding:
         ----------
         value: int
             Value of string in dict
-
         Returns
         -------
             word

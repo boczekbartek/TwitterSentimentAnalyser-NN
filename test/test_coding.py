@@ -17,6 +17,10 @@ def rev_dict():
     return {1: 'hello', 2: 'go'}
 
 
+@pytest.fixture()
+def occurrences():
+    return {'hello': 1, 'go': 2}
+
 @pytest.mark.parametrize('words, expected', [
     (['hello', 'how', 'are', 'you', 'doing'], {'hello': 1, 'how': 2, 'are': 3, 'you': 4, 'doing': 5}),
     (['hello', 'hello', 'hello', 'go', 'go', 'go'], {'hello': 1, "go": 2})
@@ -38,8 +42,9 @@ def test_making_dictionary_reversed(words, expected, coder):
     ('cat', {'hello': 1, 'go': 2, 'cat': 3}, 3),
     ('go', {'hello': 1, 'go': 2}, 2)
 ])
-def test_updating_dict(dictionary, word, new_dict, expected_index, coder):
+def test_updating_dict(occurrences, dictionary, word, new_dict, expected_index, coder):
     coder.word_dict = dictionary
+    coder.occurrences = occurrences
     coder.max_code = max(dictionary.values())
     assert expected_index == coder.update_dict(word)
     assert coder.word_dict == new_dict
@@ -49,8 +54,9 @@ def test_updating_dict(dictionary, word, new_dict, expected_index, coder):
     ('cat', {1: 'hello', 2: 'go', 3: 'cat'}, 3),
     ('go', {1: 'hello', 2: 'go'}, 2)
 ])
-def test_updating_rev_dict(dictionary, rev_dict, word, new_rev_dict, expected_index, coder):
+def test_updating_rev_dict(occurrences, dictionary, rev_dict, word, new_rev_dict, expected_index, coder):
     coder.rev_dict = rev_dict
+    coder.occurrences = occurrences
     coder.word_dict = dictionary
     coder.max_code = max(rev_dict.keys())
     assert expected_index == coder.update_dict(word)
@@ -91,11 +97,6 @@ def test_decoding_raises_key_error(rev_dict, non_existing_code, coder):
 def test_out_of_vocabulary(dictionary, word, expected, coder):
     coder.word_dict = dictionary
     assert expected == coder.is_oov(word)
-
-
-@pytest.fixture()
-def occurrences():
-    return {'hello': 1, 'go': 2}
 
 
 @pytest.mark.parametrize('word, expected_occurrences, expected_count', [
