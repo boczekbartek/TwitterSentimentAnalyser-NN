@@ -54,8 +54,8 @@ class MLPNetwork:
         return 1. / self.num_examples * data_loss
 
     # Helper function to predict an output (0 or 1)
-    def predict(self, model, x):
-        W1, b1, W2, b2 = model['W1'], model['b1'], model['W2'], model['b2']
+    def predict(self, x):
+        W1, b1, W2, b2 = self.model['W1'], self.model['b1'], self.model['W2'], self.model['b2']
         # Forward propagation
         z1 = x.dot(W1) + b1
         a1 = np.tanh(z1)

@@ -2,6 +2,7 @@ class Coding:
     def __init__(self):
         self.word_dict = dict()
         self.rev_dict = dict()
+        self.occurrences = dict()
         self.max_code = 0
 
     def make_dict(self, words: list) -> dict:
@@ -37,7 +38,26 @@ class Coding:
             self.word_dict[word] = new_code
             self.rev_dict[new_code] = word
             self.max_code = new_code
+
+        self.add_occurrence(word)
         return self.word_dict[word]
+
+    def add_occurrence(self, word: str) -> int:
+        """
+        Add occurance of word to occurances dict
+        Parameters
+        ----------
+        word: str
+            word
+        Returns
+        -------
+            Number of occurances for this word
+        """
+        if word not in self.word_dict:
+            self.occurrences[word] = 1
+        else:
+            self.occurrences[word] += 1
+        return self.occurrences[word]
 
     def decode(self, value: int) -> str:
         """

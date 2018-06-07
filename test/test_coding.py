@@ -91,3 +91,21 @@ def test_decoding_raises_key_error(rev_dict, non_existing_code, coder):
 def test_out_of_vocabulary(dictionary, word, expected, coder):
     coder.word_dict = dictionary
     assert expected == coder.is_oov(word)
+
+
+@pytest.fixture()
+def occurrences():
+    return {'hello': 1, 'go': 2}
+
+
+@pytest.mark.parametrize('word, expected_occurrences, expected_count', [
+    ('hello', {'hello': 2, 'go': 2}, 2),
+    ('go', {'hello': 1, 'go': 3}, 3),
+    ('cat', {'hello': 1, 'go': 2, 'cat': 1}, 1)
+])
+def test_adding_occurrences(dictionary, occurrences, word, expected_occurrences, expected_count, coder):
+    coder.occurrences = occurrences
+    coder.word_dict = dictionary
+    assert expected_count == coder.add_occurrence(word)
+    assert coder.occurrences == expected_occurrences
+
