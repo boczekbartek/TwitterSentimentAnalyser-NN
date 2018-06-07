@@ -80,4 +80,4 @@ class Coding:
         -------
             True or False if word is in out of vocabulary
         """
-        return False if word in self.rev_dict else True
+        return False if word in self.word_dict else True
