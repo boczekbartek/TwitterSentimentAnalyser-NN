@@ -1,8 +1,13 @@
+from nltk.stem import PorterStemmer, WordNetLemmatizer
+
 import os
 import re
 import pandas as pd
 
-csv_file = "tweets_iphone.csv"
+stemmer = PorterStemmer()
+lemmatiser = WordNetLemmatizer()
+
+csv_file = "tweets_apple.csv"
 
 os.path.isfile(csv_file)
 print("Loading from file:", csv_file, sep=" ")
@@ -13,7 +18,7 @@ for index, row in df.iterrows():
     wordlist = re.sub("[^\w]", " ",  full).split()
     #print(wordlist)
     for word in wordlist:
-        #print(word) 
+        #print(word)
         lem = lemmatiser.lemmatize(word, pos="v")
         stem = stemmer.stem(word)
         d = {'index': [index], 'word': [word], 'stem' :[stem], 'lem':[lem]}
