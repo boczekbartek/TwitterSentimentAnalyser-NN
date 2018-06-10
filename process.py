@@ -8,14 +8,6 @@ from functional import seq
 from functools import partial
 
 
-csv_file = "tweets_apple.csv"
-
-os.path.isfile(csv_file)
-print("Loading from file:", csv_file, sep=" ")
-df = pd.read_csv(csv_file)
-df.reindex()
-
-
 def tokenize_and_remove_punkt(full_text: str) -> list:
     """
     Tokenize and remove punctuation
