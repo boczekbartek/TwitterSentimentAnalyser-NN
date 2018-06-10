@@ -55,5 +55,32 @@ def lem(words: list, lemmatiser_cls=WordNetLemmatizer) -> list:
     -------
         List of lemmed words
     """
-    lemmatiser = lemmatiser_cls()
-    return seq(words).map(partial(lemmatiser.lemmatiser, pos='v')).list()
+
+    lemmatizer = lemmatiser_cls()
+    return seq(words).map(partial(lemmatizer.lemmatize, pos='v')).list()
+
+
+def pad_or_truncate(in_list: list, target_len: int, end: bool = True, pad_value :object = 0):
+    """
+    Fit 'in_list' length to be 'target_len' by adding 0 to the end or beggining depending on 'end' param
+    Parameters
+    ----------
+    in_list : list
+        Input list
+    target_len : int
+        Target length of list
+    end : bool
+        True - add 'pad_value' to the end of 'in_list' or truncate from end
+        False - add 'pad_value' to the beginning of 'in_list' or truncate from beg
+    pad_value : object
+        Object to add in newly created slots
+    Returns
+    -------
+
+    """
+    if end:
+        return in_list[:target_len] + [pad_value] * (target_len - len(in_list))
+    else:
+        beg_index = len(in_list)-target_len
+        beg_index = beg_index if beg_index >= 0 else 0
+        return [pad_value] * (target_len - len(in_list)) + in_list[beg_index:]
