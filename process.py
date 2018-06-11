@@ -1,11 +1,8 @@
-from nltk.stem import PorterStemmer, WordNetLemmatizer
-
-import os
 import re
-import pandas as pd
+from functools import partial
 
 from functional import seq
-from functools import partial
+from nltk.stem import PorterStemmer, WordNetLemmatizer
 
 
 def tokenize_and_remove_punkt(full_text: str) -> list:

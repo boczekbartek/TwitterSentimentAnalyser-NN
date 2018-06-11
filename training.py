@@ -1,8 +1,6 @@
+# coding: utf-8
 from typing import List, Tuple
-from functools import partial
 
-import matplotlib.pyplot as plt
-import pandas as pd
 import numpy as np
 from process import *
 from nn.MLP import MLPNetwork
