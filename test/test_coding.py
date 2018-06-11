@@ -26,7 +26,7 @@ def occurrences():
     (['hello', 'hello', 'hello', 'go', 'go', 'go'], {'hello': 1, "go": 2})
 ])
 def test_making_dictionary_straight(words, expected, coder):
-    assert expected == coder.make_dict(words)
+    assert expected == coder.update(words)
 
 
 @pytest.mark.parametrize('words, expected', [
@@ -34,7 +34,7 @@ def test_making_dictionary_straight(words, expected, coder):
     (['hello', 'hello', 'hello', 'go', 'go', 'go'], {1: 'hello', 2: 'go'})
 ])
 def test_making_dictionary_reversed(words, expected, coder):
-    coder.make_dict(words)
+    coder.update(words)
     assert expected == coder.rev_dict
 
 

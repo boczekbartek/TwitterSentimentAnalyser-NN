@@ -1,13 +1,14 @@
+from collections import Counter
 class Coding:
     def __init__(self):
         self.word_dict = dict()
         self.rev_dict = dict()
-        self.occurrences = dict()
+        self.occurrences = Counter()
         self.max_code = 0
 
-    def make_dict(self, words: list) -> dict:
+    def update(self, words: list) -> dict:
         """
-        Make dict from list of words, set to self.word_dict. There are
+        Update dicts from list of words, set to self.word_dict. There are
         Parameters
         ----------
         words: list
