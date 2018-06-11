@@ -1,4 +1,6 @@
 from collections import Counter
+
+
 class Coding:
     def __init__(self):
         self.word_dict = dict()
@@ -57,6 +59,7 @@ class Coding:
             self.occurrences[word] = 1
         else:
             self.occurrences[word] += 1
+
         return self.occurrences[word]
 
     def decode(self, value: int) -> str:
@@ -72,21 +75,32 @@ class Coding:
         """
         return self.rev_dict[value]
 
-    def encode(self, word: str)-> int:
+    def encode(self, word: str, threshold_min: int = 0, threshold_max: int = None, oov: object = 0) -> object:
         """
-        Encode word to int using dict, if word is out of vocabulary return 0
+        Encode word to int using dict, if word is out of vocabulary return 'oov'
         Parameters
         ----------
         word: str
             word to encode
+        threshold_max: int
+            maximum number of occurrences of word in dictionary, if above 'oov' is returned
+        threshold_min: int
+            minimum number of occurrences of word in dictionary, if under 'oov' is returned
+        oov: object
+            object to return of 'word' is out of vocabulary
         Returns
         -------
-            Code of word
+            Code of word or 'oov' value
         """
         try:
+            if threshold_max:
+                if self.occurrences[word] > threshold_max:
+                    return oov
+            if self.occurrences[word] < threshold_min:
+                return oov
             return self.word_dict[word]
         except KeyError:
-            return 0
+            return oov
 
     def is_oov(self, word: str) -> bool:
         """
@@ -100,3 +114,24 @@ class Coding:
             True or False if word is in out of vocabulary
         """
         return False if word in self.word_dict else True
+
+    def len_between(self, threshold_min: int = 0, threshold_max: int = None) -> int:
+        """
+        Count elements of dict that are between occurrences thresholds
+        Parameters
+        ----------
+        threshold_min: int
+            minimal number of occurrences
+        threshold_max: int
+            maximal number of occurrences
+
+        Returns
+        -------
+
+        """
+        cnt = 0
+        for _, occ in self.occurrences.items():
+            if threshold_max:
+                if threshold_min <= occ <= threshold_max:
+                    cnt += 1
+        return cnt

@@ -1,11 +1,8 @@
-from nltk.stem import PorterStemmer, WordNetLemmatizer
-
-import os
 import re
-import pandas as pd
+from functools import partial
 
 from functional import seq
-from functools import partial
+from nltk.stem import PorterStemmer, WordNetLemmatizer
 
 
 def tokenize_and_remove_punkt(full_text: str) -> list:
@@ -60,7 +57,7 @@ def lem(words: list, lemmatiser_cls=WordNetLemmatizer) -> list:
     return seq(words).map(partial(lemmatizer.lemmatize, pos='v')).list()
 
 
-def pad_or_truncate(in_list: list, target_len: int, end: bool = True, pad_value :object = 0):
+def pad_or_truncate(in_list: list, target_len: int, end: bool = True, pad_value: object = 0):
     """
     Fit 'in_list' length to be 'target_len' by adding 0 to the end or beggining depending on 'end' param
     Parameters
@@ -81,6 +78,6 @@ def pad_or_truncate(in_list: list, target_len: int, end: bool = True, pad_value 
     if end:
         return in_list[:target_len] + [pad_value] * (target_len - len(in_list))
     else:
-        beg_index = len(in_list)-target_len
+        beg_index = len(in_list) - target_len
         beg_index = beg_index if beg_index >= 0 else 0
         return [pad_value] * (target_len - len(in_list)) + in_list[beg_index:]

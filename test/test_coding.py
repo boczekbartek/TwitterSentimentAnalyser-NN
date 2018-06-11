@@ -21,6 +21,7 @@ def rev_dict():
 def occurrences():
     return {'hello': 1, 'go': 2}
 
+
 @pytest.mark.parametrize('words, expected', [
     (['hello', 'how', 'are', 'you', 'doing'], {'hello': 1, 'how': 2, 'are': 3, 'you': 4, 'doing': 5}),
     (['hello', 'hello', 'hello', 'go', 'go', 'go'], {'hello': 1, "go": 2})
@@ -72,6 +73,26 @@ def test_encoding(dictionary, word, expected_code, coder):
     assert expected_code == coder.encode(word)
 
 
+@pytest.mark.parametrize('word, occurrences_dict, min_threshold, expected_code', [
+    ('hello', {'hello': 1}, 1, 1),
+    ('hello', {'hello': 1}, 2, 0),
+])
+def test_encoding_min_threshold(dictionary, occurrences_dict, word, min_threshold, expected_code, coder):
+    coder.word_dict = dictionary
+    coder.occurrences = occurrences_dict
+    assert expected_code == coder.encode(word, threshold_min=min_threshold)
+
+
+@pytest.mark.parametrize('word, occurrences_dict, max_threshold, expected_code', [
+    ('hello', {'hello': 3}, 4, 1),
+    ('hello', {'hello': 3}, 2, 0),
+])
+def test_encoding_min_threshold(dictionary, occurrences_dict, word, max_threshold, expected_code, coder):
+    coder.word_dict = dictionary
+    coder.occurrences = occurrences_dict
+    assert expected_code == coder.encode(word, threshold_max=max_threshold)
+
+
 @pytest.mark.parametrize('code, expected_word', [
     (1, 'hello')
 ])
@@ -110,3 +131,14 @@ def test_adding_occurrences(dictionary, occurrences, word, expected_occurrences,
     assert expected_count == coder.add_occurrence(word)
     assert coder.occurrences == expected_occurrences
 
+
+@pytest.mark.parametrize('threshold_min,threshold_max, expected_len', [
+    (0, 2, 2),
+    (0, 1, 1),
+    (2, 3, 1),
+    (3, 4, 0),
+    (4, 3, 0)
+])
+def test_len_between(threshold_min, threshold_max, expected_len, occurrences, coder):
+    coder.occurrences = occurrences
+    assert expected_len == coder.len_between(threshold_min=threshold_min, threshold_max=threshold_max)

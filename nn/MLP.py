@@ -1,7 +1,7 @@
 import numpy as np
 import typing
 
-
+from sklearn.neural_network import MLPClassifier
 class MLPNetwork:
     def __init__(self, num_features: int, num_classes: int, num_examples: int,
                  num_hidden_neurons: typing.Dict[int, int], reg_lambda: int = 0.01, epsilon: int = 0.01):
@@ -76,7 +76,6 @@ class MLPNetwork:
 
         # Gradient descent. For each batch...
         for i in range(0, batches):
-
             # Forward propagation
             z1 = X.dot(W1) + b1
             a1 = np.tanh(z1)
@@ -112,3 +111,6 @@ class MLPNetwork:
                 print("Loss after iteration {}: {}".format(i, self.calculate_loss(X, y)))
 
         return self.model
+
+if __name__ == '__main__':
+    pass
