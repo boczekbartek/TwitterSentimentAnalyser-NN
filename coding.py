@@ -1,4 +1,6 @@
 from collections import Counter
+
+
 class Coding:
     def __init__(self):
         self.word_dict = dict()
@@ -73,7 +75,7 @@ class Coding:
         """
         return self.rev_dict[value]
 
-    def encode(self, word: str, threshold_min:int=0, threshold_max: int=None, oov: object=0)-> object:
+    def encode(self, word: str, threshold_min: int = 0, threshold_max: int = None, oov: object = 0) -> object:
         """
         Encode word to int using dict, if word is out of vocabulary return 'oov'
         Parameters
@@ -112,3 +114,24 @@ class Coding:
             True or False if word is in out of vocabulary
         """
         return False if word in self.word_dict else True
+
+    def len_between(self, threshold_min: int = 0, threshold_max: int = None) -> int:
+        """
+        Count elements of dict that are between occurrences thresholds
+        Parameters
+        ----------
+        threshold_min: int
+            minimal number of occurrences
+        threshold_max: int
+            maximal number of occurrences
+
+        Returns
+        -------
+
+        """
+        cnt = 0
+        for _, occ in self.occurrences.items():
+            if threshold_max:
+                if threshold_min <= occ <= threshold_max:
+                    cnt += 1
+        return cnt

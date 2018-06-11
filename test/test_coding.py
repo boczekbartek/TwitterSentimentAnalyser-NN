@@ -130,3 +130,15 @@ def test_adding_occurrences(dictionary, occurrences, word, expected_occurrences,
     coder.word_dict = dictionary
     assert expected_count == coder.add_occurrence(word)
     assert coder.occurrences == expected_occurrences
+
+
+@pytest.mark.parametrize('threshold_min,threshold_max, expected_len', [
+    (0, 2, 2),
+    (0, 1, 1),
+    (2, 3, 1),
+    (3, 4, 0),
+    (4, 3, 0)
+])
+def test_len_between(threshold_min, threshold_max, expected_len, occurrences, coder):
+    coder.occurrences = occurrences
+    assert expected_len == coder.len_between(threshold_min=threshold_min, threshold_max=threshold_max)
