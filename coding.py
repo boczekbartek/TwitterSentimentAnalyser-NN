@@ -131,7 +131,10 @@ class Coding:
         """
         cnt = 0
         for _, occ in self.occurrences.items():
-            if threshold_max:
+            if threshold_max is None:
+                if threshold_min <= occ:
+                    cnt += 1
+            else:
                 if threshold_min <= occ <= threshold_max:
                     cnt += 1
         return cnt
