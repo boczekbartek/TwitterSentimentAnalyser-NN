@@ -2,6 +2,7 @@
 import os
 from typing import List, Tuple
 
+import pandas as pd
 
 def get_train_data(csv_file: str = "tweets_apple.csv") -> List[Tuple[str, int]]:
     """ Load tweets table from csv. Gets only scored tweets and returns pars with tweet text and score"""
