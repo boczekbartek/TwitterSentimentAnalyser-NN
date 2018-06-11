@@ -82,6 +82,7 @@ def test_encoding_min_threshold(dictionary, occurrences_dict, word, min_threshol
     coder.occurrences = occurrences_dict
     assert expected_code == coder.encode(word, threshold_min=min_threshold)
 
+
 @pytest.mark.parametrize('word, occurrences_dict, max_threshold, expected_code', [
     ('hello', {'hello': 3}, 4, 1),
     ('hello', {'hello': 3}, 2, 0),
@@ -90,7 +91,6 @@ def test_encoding_min_threshold(dictionary, occurrences_dict, word, max_threshol
     coder.word_dict = dictionary
     coder.occurrences = occurrences_dict
     assert expected_code == coder.encode(word, threshold_max=max_threshold)
-
 
 
 @pytest.mark.parametrize('code, expected_word', [

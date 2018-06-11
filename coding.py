@@ -4,7 +4,6 @@ class Coding:
         self.word_dict = dict()
         self.rev_dict = dict()
         self.occurrences = Counter()
-        self.rev_occurrences = dict()
         self.max_code = 0
 
     def update(self, words: list) -> dict:
@@ -59,7 +58,6 @@ class Coding:
         else:
             self.occurrences[word] += 1
 
-        self.rev_occurrences[self.occurrences[word]] = word
         return self.occurrences[word]
 
     def decode(self, value: int) -> str:
@@ -73,7 +71,7 @@ class Coding:
         -------
             word
         """
-        return self.rev_occurrences[value]
+        return self.rev_dict[value]
 
     def encode(self, word: str, threshold_min:int=0, threshold_max: int=None, oov: object=0)-> object:
         """
