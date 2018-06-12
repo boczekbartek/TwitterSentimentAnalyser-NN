@@ -29,7 +29,7 @@ class MLPNetwork:
         w2 = w2.reshape(self.n_classes, self.n_hidden_units + 1)
         return w1, w2
 
-    def _add_bias_unit(self, X, how='column'):
+    def _bias(self, X, how='column'):
         if how == 'column':
             X_new = np.ones((X.shape[0], X.shape[1] + 1))
             X_new[:, 1:] = X
@@ -39,17 +39,19 @@ class MLPNetwork:
         return X_new
 
     def _forward(self, X):
-        net_input = self._add_bias_unit(X, how='column')
+        """ Forward gradient propagation """
+        net_input = self._bias(X, how='column')
         net_hidden = self.w1.dot(net_input.T)
         act_hidden = self.sigmoid(net_hidden)
-        act_hidden = self._add_bias_unit(act_hidden, how='row')
+        act_hidden = self._bias(act_hidden, how='row')
         net_out = self.w2.dot(act_hidden)
         act_out = self.sigmoid(net_out)
         return net_input, net_hidden, act_hidden, net_out, act_out
 
     def _backward(self, net_input, net_hidden, act_hidden, act_out, y):
+        """ Backward gradient propagation """
         sigma3 = act_out - y
-        net_hidden = self._add_bias_unit(net_hidden, how='row')
+        net_hidden = self._bias(net_hidden, how='row')
         sigma2 = self.w2.T.dot(sigma3) * self.sigmoid_prime(net_hidden)
         sigma2 = sigma2[1:, :]
         grad1 = sigma2.dot(net_input)
@@ -57,14 +59,13 @@ class MLPNetwork:
         return grad1, grad2
 
     def _error(self, y, output):
-        #         L1_term = L1_reg(self.l1, self.w1, self.w2)
-        #         L2_term = L2_reg(self.l2, self.w1, self.w2)
+        """ Error between network output and reference """
         error = self.cross_entropy(output, y)
-        #         error = cross_entropy(output, y) + L1_term + L2_term
 
         return 0.5 * np.mean(error)
 
-    def _backprop_step(self, X, y):
+    def _training_step(self, X, y):
+        """ One """
         net_input, net_hidden, act_hidden, net_out, act_out = self._forward(X)
         y = y.T
 
@@ -79,16 +80,13 @@ class MLPNetwork:
         return error, grad1, grad2
 
     def predict(self, X):
-        Xt = X.copy()
-        net_input, net_hidden, act_hidden, net_out, act_out = self._forward(Xt)
-        return net_out.T
-
-    def predict_proba(self, X):
+        """ Predict neural network output """
         Xt = X.copy()
         net_input, net_hidden, act_hidden, net_out, act_out = self._forward(Xt)
         return self.softmax(act_out.T)
 
     def fit(self, X, y):
+        """ Fit training data to given labels, train model. """
         self.error_ = []
         X_data, y_data = X.copy(), y.copy()
 
@@ -102,12 +100,13 @@ class MLPNetwork:
 
             for Xi, yi in zip(X_mb, y_mb):
                 # update weights
-                error, grad1, grad2 = self._backprop_step(Xi, yi)
+                error, grad1, grad2 = self._training_step(Xi, yi)
                 epoch_errors.append(error)
                 self.w1 -= (self.learning_rate * grad1)
                 self.w2 -= (self.learning_rate * grad2)
-            self.error_.append(np.mean(epoch_errors))
 
+            # remember mean or errors
+            self.error_.append(np.mean(epoch_errors))
 
     def evaluate(self, X, y):
         matching = 0
@@ -147,4 +146,4 @@ class MLPNetwork:
     def save(self, path):
         """ Save model"""
         with open(path, "wb") as f:
-            pickle.dump(self)
+            pickle.dump(self, f)
