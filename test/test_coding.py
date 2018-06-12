@@ -1,5 +1,5 @@
 import pytest
-from coding import Coding
+from sentiment_analyser.coding import Coding
 
 
 @pytest.fixture()

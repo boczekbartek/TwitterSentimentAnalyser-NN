@@ -1,6 +1,7 @@
 import numpy as np
 from tqdm import tqdm
 
+
 class MLPNetwork:
     def __init__(self, n_classes, n_features, n_hidden_units=30,
                  l1=0.0, l2=0.0, epochs=500, learning_rate=0.01,
@@ -105,7 +106,7 @@ class MLPNetwork:
                 self.w1 -= (self.learning_rate * grad1)
                 self.w2 -= (self.learning_rate * grad2)
             self.error_.append(np.mean(epoch_errors))
-        return self
+
 
     def evaluate(self, X, y):
         matching = 0
