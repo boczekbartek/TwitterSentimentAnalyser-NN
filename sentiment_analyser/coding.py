@@ -7,6 +7,7 @@ class Coding:
         self.rev_dict = dict()
         self.occurrences = Counter()
         self.max_code = 0
+        self.final_dict = None
 
     def update(self, words: list) -> dict:
         """
@@ -102,6 +103,15 @@ class Coding:
         except KeyError:
             return oov
 
+    def encode_final(self, word: str, oov: object = 0) -> object:
+        """ Encode word with final dictionary"""
+        if self.final_dict is None:
+            raise AssertionError("You need to run 'compile' method before using final dict")
+        try:
+            return self.final_dict[word]
+        except KeyError:
+            return oov
+
     def is_oov(self, word: str) -> bool:
         """
         Check if word is in dict
@@ -131,7 +141,26 @@ class Coding:
         """
         cnt = 0
         for _, occ in self.occurrences.items():
-            if threshold_max:
+            if threshold_max is None:
+                if threshold_min <= occ:
+                    cnt += 1
+            else:
                 if threshold_min <= occ <= threshold_max:
                     cnt += 1
         return cnt
+
+    def compile(self, min_threshold: int = 0, max_threshold: int = None) -> dict:
+        """ Apply codes to words in dictionary based on occurrences with ascending order"""
+        final_dict = {}
+        code = 0
+        for word, occ in sorted(self.occurrences.items(), key=lambda x: x[1]):
+            if max_threshold:
+                if min_threshold <= occ <= max_threshold:
+                    final_dict[word] = code
+                    code += 1
+            else:
+                if min_threshold <= occ:
+                    final_dict[word] = code
+                    code += 1
+        self.final_dict = final_dict
+        return final_dict

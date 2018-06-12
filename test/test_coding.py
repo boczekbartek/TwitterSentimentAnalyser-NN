@@ -1,5 +1,5 @@
 import pytest
-from coding import Coding
+from sentiment_analyser.coding import Coding
 
 
 @pytest.fixture()
@@ -134,10 +134,12 @@ def test_adding_occurrences(dictionary, occurrences, word, expected_occurrences,
 
 @pytest.mark.parametrize('threshold_min,threshold_max, expected_len', [
     (0, 2, 2),
+    (0, None, 2),
     (0, 1, 1),
     (2, 3, 1),
     (3, 4, 0),
     (4, 3, 0)
+
 ])
 def test_len_between(threshold_min, threshold_max, expected_len, occurrences, coder):
     coder.occurrences = occurrences

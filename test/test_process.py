@@ -1,5 +1,5 @@
 import pytest
-from process import pad_or_truncate
+from sentiment_analyser.process import pad_or_truncate
 
 
 @pytest.mark.parametrize('in_list, target_len, end, pad_value, expected', [
