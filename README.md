@@ -17,3 +17,9 @@ Install dependencies:
 
 Activate jupyter to see notebooks:  
 ``` jupyter notebook ```
+
+notebooks
+* fetch_tweets.ipynb => download tweets  
+* train.ipynb => neural networt training pipeline
+* tweets_scoring.ipynb => tweets scoring
+
