@@ -1,5 +1,6 @@
 import numpy as np
 from tqdm import tqdm
+import pickle
 
 
 class MLPNetwork:
@@ -142,3 +143,8 @@ class MLPNetwork:
         """Compute softmax values for each sets of scores in x."""
         e_x = np.exp(x - np.max(x))
         return e_x / e_x.sum(axis=0)  # only difference
+
+    def save(self, path):
+        """ Save model"""
+        with open(path, "wb") as f:
+            pickle.dump(self)
