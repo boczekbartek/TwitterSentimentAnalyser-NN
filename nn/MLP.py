@@ -1,116 +1,143 @@
 import numpy as np
-import typing
+from tqdm import tqdm
 
-from sklearn.neural_network import MLPClassifier
 class MLPNetwork:
-    def __init__(self, num_features: int, num_classes: int, num_examples: int,
-                 num_hidden_neurons: typing.Dict[int, int], reg_lambda: int = 0.01, epsilon: int = 0.01):
+    def __init__(self, n_classes, n_features, n_hidden_units=30,
+                 l1=0.0, l2=0.0, epochs=500, learning_rate=0.01,
+                 n_batches=1, random_seed=None):
+
+        if random_seed:
+            np.random.seed(random_seed)
+        self.n_classes = n_classes
+        self.n_features = n_features
+        self.n_hidden_units = n_hidden_units
+        self.w1, self.w2 = self._init_weights()
+        self.l1 = l1
+        self.l2 = l2
+        self.epochs = epochs
+        self.learning_rate = learning_rate
+        self.n_batches = n_batches
+
+    def _init_weights(self):
+        w1 = np.random.uniform(-1.0, 1.0,
+                               size=self.n_hidden_units * (self.n_features + 1))
+        w1 = w1.reshape(self.n_hidden_units, self.n_features + 1)
+        w2 = np.random.uniform(-1.0, 1.0,
+                               size=self.n_classes * (self.n_hidden_units + 1))
+        w2 = w2.reshape(self.n_classes, self.n_hidden_units + 1)
+        return w1, w2
+
+    def _add_bias_unit(self, X, how='column'):
+        if how == 'column':
+            X_new = np.ones((X.shape[0], X.shape[1] + 1))
+            X_new[:, 1:] = X
+        elif how == 'row':
+            X_new = np.ones((X.shape[0] + 1, X.shape[1]))
+            X_new[1:, :] = X
+        return X_new
+
+    def _forward(self, X):
+        net_input = self._add_bias_unit(X, how='column')
+        net_hidden = self.w1.dot(net_input.T)
+        act_hidden = self.sigmoid(net_hidden)
+        act_hidden = self._add_bias_unit(act_hidden, how='row')
+        net_out = self.w2.dot(act_hidden)
+        act_out = self.sigmoid(net_out)
+        return net_input, net_hidden, act_hidden, net_out, act_out
+
+    def _backward(self, net_input, net_hidden, act_hidden, act_out, y):
+        sigma3 = act_out - y
+        net_hidden = self._add_bias_unit(net_hidden, how='row')
+        sigma2 = self.w2.T.dot(sigma3) * self.sigmoid_prime(net_hidden)
+        sigma2 = sigma2[1:, :]
+        grad1 = sigma2.dot(net_input)
+        grad2 = sigma3.dot(act_hidden.T)
+        return grad1, grad2
+
+    def _error(self, y, output):
+        #         L1_term = L1_reg(self.l1, self.w1, self.w2)
+        #         L2_term = L2_reg(self.l2, self.w1, self.w2)
+        error = self.cross_entropy(output, y)
+        #         error = cross_entropy(output, y) + L1_term + L2_term
+
+        return 0.5 * np.mean(error)
+
+    def _backprop_step(self, X, y):
+        net_input, net_hidden, act_hidden, net_out, act_out = self._forward(X)
+        y = y.T
+
+        grad1, grad2 = self._backward(net_input, net_hidden, act_hidden, act_out, y)
+
+        # regularize
+        grad1[:, 1:] += (self.w1[:, 1:] * (self.l1 + self.l2))
+        grad2[:, 1:] += (self.w2[:, 1:] * (self.l1 + self.l2))
+
+        error = self._error(y, act_out)
+
+        return error, grad1, grad2
+
+    def predict(self, X):
+        Xt = X.copy()
+        net_input, net_hidden, act_hidden, net_out, act_out = self._forward(Xt)
+        return net_out.T
+
+    def predict_proba(self, X):
+        Xt = X.copy()
+        net_input, net_hidden, act_hidden, net_out, act_out = self._forward(Xt)
+        return self.softmax(act_out.T)
+
+    def fit(self, X, y):
+        self.error_ = []
+        X_data, y_data = X.copy(), y.copy()
+
+        y_data_enc = y
+        for i in tqdm(range(self.epochs)):
+
+            X_mb = np.array_split(X_data, self.n_batches)
+            y_mb = np.array_split(y_data_enc, self.n_batches)
+
+            epoch_errors = []
+
+            for Xi, yi in zip(X_mb, y_mb):
+                # update weights
+                error, grad1, grad2 = self._backprop_step(Xi, yi)
+                epoch_errors.append(error)
+                self.w1 -= (self.learning_rate * grad1)
+                self.w2 -= (self.learning_rate * grad2)
+            self.error_.append(np.mean(epoch_errors))
+        return self
+
+    def evaluate(self, X, y):
+        matching = 0
+        for pred, real in zip(self.predict(X), y):
+            if np.argmax(pred) == np.argmax(real):
+                matching += 1
+        return float(matching) / len(y)
+
+    @staticmethod
+    def cross_entropy(predictions, targets, epsilon=1e-12):
         """
-        Multi layer perceptron neural network model
-        :param num_features: number of features in classified data (size of input layer)
-        :param num_classes:  number of classes in data (size of output layer - softmax)
-        :param num_examples: size of training data
-        :param num_hidden_neurons: number of hidden neurons in each layers: { layer_number : neurons_number }
-                                   Hidden layers count starts from 1 to n. First input layer is not counted as hidden
-                                   layer.
-        :param reg_lambda: regularization parameter
-        :param epsilon: epsilon
+        Computes cross entropy between targets (encoded as one-hot vectors)
+        and predictions.
+        Input: predictions (N, k) ndarray
+               targets (N, k) ndarray
+        Returns: scalar
         """
-        self.num_examples = num_examples
-        self.num_features = num_features
-        self.num_classes = num_classes
+        predictions = np.clip(predictions, epsilon, 1. - epsilon)
+        N = predictions.shape[0]
+        ce = -np.sum(np.sum(targets * np.log(predictions + 1e-9))) / N
+        return ce
 
-        # TODO Add multi layers
-        self.num_hidden_neurons = num_hidden_neurons
+    @staticmethod
+    def sigmoid(x):
+        return 1.0 / (1 + np.exp(-x))
 
-        self.reg_lambda = reg_lambda
-        self.epsilon = epsilon
-        self.model = self.init_model()
+    @staticmethod
+    def sigmoid_prime(x):
+        return MLPNetwork.sigmoid(x) * (1 - MLPNetwork.sigmoid(x))
 
-    def init_model(self):
-        # TODO multi layers
-        hidden_1_neurons = self.num_hidden_neurons[1]
-        np.random.seed(0)
-        W1 = np.random.randn(self.num_features, hidden_1_neurons) / np.sqrt(self.num_features)
-        b1 = np.zeros((1, hidden_1_neurons))
-        W2 = np.random.randn(hidden_1_neurons, self.num_classes) / np.sqrt(hidden_1_neurons)
-        b2 = np.zeros((1, self.num_classes))
-
-        return {'W1': W1, 'b1': b1, 'W2': W2, 'b2': b2}
-
-    def calculate_loss(self, X, y):
-        W1, b1, W2, b2 = self.model['W1'], self.model['b1'], self.model['W2'], self.model['b2']
-        # Forward propagation to calculate our predictions
-        z1 = X.dot(W1) + b1
-        a1 = np.tanh(z1)
-        z2 = a1.dot(W2) + b2
-        exp_scores = np.exp(z2)
-        probs = exp_scores / np.sum(exp_scores, axis=1, keepdims=True)
-        # Calculating the loss
-        corect_logprobs = -np.log(probs[range(self.num_examples), y])
-        data_loss = np.sum(corect_logprobs)
-        # Add regulatization term to loss (optional)
-        data_loss += self.reg_lambda / 2 * (np.sum(np.square(W1)) + np.sum(np.square(W2)))
-        return 1. / self.num_examples * data_loss
-
-    # Helper function to predict an output (0 or 1)
-    def predict(self, x):
-        W1, b1, W2, b2 = self.model['W1'], self.model['b1'], self.model['W2'], self.model['b2']
-        # Forward propagation
-        z1 = x.dot(W1) + b1
-        a1 = np.tanh(z1)
-        z2 = a1.dot(W2) + b2
-        exp_scores = np.exp(z2)
-        probs = exp_scores / np.sum(exp_scores, axis=1, keepdims=True)
-        return np.argmax(probs, axis=1)
-
-    def fit(self, X, y, batches=20000, print_loss=False):
-        """
-
-        :param batches:
-        :param print_loss:
-        :return:
-        """
-
-        W1, b1, W2, b2 = self.model['W1'], self.model['b1'], self.model['W2'], self.model['b2']
-
-        # Gradient descent. For each batch...
-        for i in range(0, batches):
-            # Forward propagation
-            z1 = X.dot(W1) + b1
-            a1 = np.tanh(z1)
-            z2 = a1.dot(W2) + b2
-            exp_scores = np.exp(z2)
-            probs = exp_scores / np.sum(exp_scores, axis=1, keepdims=True)
-
-            # Backpropagation
-            delta3 = probs
-            delta3[range(self.num_examples), y] -= 1
-            dW2 = (a1.T).dot(delta3)
-            db2 = np.sum(delta3, axis=0, keepdims=True)
-            delta2 = delta3.dot(W2.T) * (1 - np.power(a1, 2))
-            dW1 = np.dot(X.T, delta2)
-            db1 = np.sum(delta2, axis=0)
-
-            # Add regularization terms (b1 and b2 don't have regularization terms)
-            dW2 += self.reg_lambda * W2
-            dW1 += self.reg_lambda * W1
-
-            # Gradient descent parameter update
-            W1 += -self.epsilon * dW1
-            b1 += -self.epsilon * db1
-            W2 += -self.epsilon * dW2
-            b2 += -self.epsilon * db2
-
-            # Assign new parameters to the model
-            self.model = {'W1': W1, 'b1': b1, 'W2': W2, 'b2': b2}
-
-            # Optionally print the loss.
-            # This is expensive because it uses the whole dataset, so we don't want to do it too often.
-            if print_loss and i % 1000 == 0:
-                print("Loss after iteration {}: {}".format(i, self.calculate_loss(X, y)))
-
-        return self.model
-
-if __name__ == '__main__':
-    pass
+    @staticmethod
+    def softmax(x):
+        """Compute softmax values for each sets of scores in x."""
+        e_x = np.exp(x - np.max(x))
+        return e_x / e_x.sum(axis=0)  # only difference
