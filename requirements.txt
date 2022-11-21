@@ -80,7 +80,7 @@ sklearn==0.0
 smart-open==1.5.7
 tabulate==0.7.7
 tensorboard==1.6.0
-tensorflow==1.6.0rc1
+tensorflow==2.9.3
 termcolor==1.1.0
 terminado==0.8.1
 testpath==0.3.1
